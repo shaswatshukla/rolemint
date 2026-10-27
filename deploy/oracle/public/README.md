@@ -7,3 +7,7 @@ The public service reuses the upstream Resume Matcher image and bounded document
 The service serializes expensive operations and caps API operations at 30/minute for the whole small Oracle instance. Files are limited to 5 MB and request bodies to 6 MB.
 
 Tests cover anonymous routes, blocked shared-data routes, distinct request keys and drafts, invalid files, and export HTML escaping. Live PDF and DOCX exports were also verified using fictional data. Actual model generation still requires a working visitor provider key.
+
+## Key setup and comparison report
+
+Both Groq and Gemini key-creation links are shown in the public form. Generated drafts include an AI edit summary and their actual extracted source for comparison. The browser computes before/after exact-match coverage over up to 40 selected JD terms, with matched, missing and newly introduced terms; it refreshes after manual edits and makes no extra AI calls. This heuristic does not estimate ATS pass probability, rankings or interview chances.

@@ -46,6 +46,7 @@ Keep all employers, qualifications, and dates. Keep relevant achievements specif
 
 class Tailored(BaseModel):
     resume_markdown: str = Field(min_length=80, max_length=50000)
+    source_markdown: str = Field(default="", max_length=30000)
     changes: list[str] = Field(default_factory=list, max_length=30)
     warnings: list[str] = Field(default_factory=list, max_length=30)
 
@@ -133,7 +134,9 @@ async def tailor(
                 raise HTTPException(422, "The AI response was cut short. Try a shorter resume or another model.")
             raw = result["message"]["content"].strip()
             raw = re.sub(r"^\x60\x60\x60(?:json)?\s*|\s*\x60\x60\x60$", "", raw)
-            return Tailored.model_validate(json.loads(raw))
+            validated = Tailored.model_validate(json.loads(raw))
+            validated.source_markdown = text
+            return validated
         except HTTPException:
             raise
         except httpx.TimeoutException:

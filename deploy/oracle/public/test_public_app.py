@@ -57,6 +57,8 @@ async def test_keys_and_outputs_are_request_scoped(monkeypatch):
                       "provider": "groq", "model": "openai/gpt-oss-120b", "api_key": key})
             assert response.status_code == 200, response.text
             outputs.append(response.json())
+        assert "Fictional Test Candidate" in outputs[0]["source_markdown"]
+        assert "FIRST PRIVATE DRAFT" not in outputs[0]["source_markdown"]
         assert "FIRST PRIVATE DRAFT" in outputs[0]["resume_markdown"]
         assert "FIRST PRIVATE DRAFT" not in outputs[1]["resume_markdown"]
         assert seen[0][1] != seen[1][1]
