@@ -1,0 +1,45 @@
+name: rolemint
+services:
+  app:
+    image: ghcr.io/srbhr/resume-matcher:1.4.0@sha256:ae84bc6f14fefb83d7ee1fcd0d527a5e09ae4ec5082f2d5f277647623c7f5d57
+    restart: unless-stopped
+    environment:
+      LLM_PROVIDER: agent
+      FRONTEND_BASE_URL: ${PUBLIC_URL:?Set PUBLIC_URL in .env}
+      ALLOWED_HOSTS: ${PUBLIC_HOST:?Set PUBLIC_HOST in .env}
+      LOG_LEVEL: INFO
+    volumes:
+      - resume-data:/app/backend/data
+    expose:
+      - "3000"
+    shm_size: 256mb
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+  gateway:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST}
+      ADMIN_USER: ${ADMIN_USER:-shaswat}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?Set the password hash}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+volumes:
+  resume-data:
+  caddy-data:
+  caddy-config:

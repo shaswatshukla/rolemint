@@ -1,0 +1,11 @@
+{$PUBLIC_HOST} {
+    basic_auth {
+        {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
+    }
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy same-origin
+        -Server
+    }
+    reverse_proxy app:3000
+}
