@@ -54,9 +54,23 @@ For generation directly in the website, select a provider and supply your own
 key in Settings. Signing in with ChatGPT through the loopback-only upstream
 flow is not configured for this remote deployment.
 
-## Status
+## Live deployment
 
-Prepared locally; server deployment and public HTTPS checks await Oracle access.
+Live URL: https://rolemint.137.23.55.229.sslip.io
+
+Deployed on 27 October 2026 in the Mumbai home region, using an Always Free-eligible
+VM.Standard.E2.1.Micro instance with 1 GB RAM and 4 GB swap. A1 provisioning was
+unavailable because of regional capacity. The initial boot volume is within the
+200 GB home-region free allowance; no paid account upgrade was performed.
+
+Verified: trusted public HTTPS, HTTP-to-HTTPS redirect, login protection, authenticated
+API health, resume creation and retrieval, and text-based PDF export. Saved data
+survived an application-container restart. The temporary test resume was deleted.
+The website remained healthy with the desktop app stopped. Login credentials stay
+on the VM in /opt/rolemint/credentials.txt and are never committed to this repository.
+
+The Python PDF renderer uses the private internal frontend URL so it can render
+without passing through the public gateway's login prompt.
 RoleMint is the deployment name. The underlying app retains upstream Resume
 Matcher branding and its Apache-2.0 attribution. The pinned upstream image does
 not include local source edits until a custom application image is built.
