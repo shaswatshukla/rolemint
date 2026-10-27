@@ -7,5 +7,12 @@
         Referrer-Policy same-origin
         -Server
     }
-    reverse_proxy app:3000
+    @home path /
+    handle @home {
+        root * /srv/rolemint
+        file_server
+    }
+    handle {
+        reverse_proxy app:3000
+    }
 }
