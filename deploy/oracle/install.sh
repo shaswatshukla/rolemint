@@ -13,7 +13,7 @@ if [[ ! "$PUBLIC_HOST" =~ ^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$ ]] || [[ "$P
 fi
 SOURCE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 DEPLOY_DIR=/opt/rolemint
-for required in compose.yaml Caddyfile; do
+for required in compose.yaml Caddyfile web/index.html; do
   [[ -f "$SOURCE_DIR/$required" ]] || { echo "Missing $required" >&2; exit 1; }
 done
 
@@ -48,6 +48,8 @@ systemctl enable --now docker
 install -d -m 700 "$DEPLOY_DIR"
 install -m 644 "$SOURCE_DIR/compose.yaml" "$DEPLOY_DIR/compose.yaml"
 install -m 644 "$SOURCE_DIR/Caddyfile" "$DEPLOY_DIR/Caddyfile"
+install -d -m 755 "$DEPLOY_DIR/web"
+install -m 644 "$SOURCE_DIR/web/index.html" "$DEPLOY_DIR/web/index.html"
 
 if [[ ! -f "$DEPLOY_DIR/.env" ]]; then
   password="$(openssl rand -hex 24)"
