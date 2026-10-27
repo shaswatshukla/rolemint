@@ -3,7 +3,9 @@ const ORIGIN = 'https://rolemint.137.23.55.229.sslip.io';
 export default {
   async fetch(request) {
     const incoming = new URL(request.url);
-    const target = new URL(incoming.pathname + incoming.search, ORIGIN);
+    const target = new URL(ORIGIN);
+    target.pathname = incoming.pathname;
+    target.search = incoming.search;
     const headers = new Headers(request.headers);
     headers.delete('host');
     headers.delete('x-forwarded-host');
