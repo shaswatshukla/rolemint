@@ -85,3 +85,17 @@ async def test_validation_prevents_provider_calls():
             "provider": "groq", "model": "openai/gpt-oss-120b", "api_key": "key-test-only"})
         assert bad.status_code == 400
         assert (await client.post("/api/export", json={"markdown": "", "format": "pdf"})).status_code == 422
+
+@pytest.mark.asyncio
+async def test_analysis_needs_no_key_or_provider_call(monkeypatch):
+    extracted = "Fictional candidate coordinates records, schedules, customers and administrative operations. " * 3
+    monkeypatch.setattr(public, "parse_document", AsyncMock(return_value=extracted))
+    def forbid_provider(*args, **kwargs):
+        raise AssertionError("Prompt-only analysis must never call an AI provider")
+    monkeypatch.setattr(public.httpx, "AsyncClient", forbid_provider)
+    async with RealClient(transport=httpx.ASGITransport(app=public.app), base_url="http://test") as client:
+        response = await client.post("/api/analyze",
+            files={"file": ("fictional.docx", document_bytes())},
+            data={"job_description": "A fictional operations role coordinating records, schedules and customer support." * 2})
+        assert response.status_code == 200, response.text
+        assert response.json() == {"source_markdown": extracted}

@@ -84,6 +84,32 @@ async def home():
 async def health():
     return {"status": "healthy", "mode": "public-stateless"}
 
+
+@app.post("/api/analyze")
+async def analyze_resume(
+    file: UploadFile = File(...),
+    job_description: str = Form(..., min_length=80, max_length=20000),
+):
+    """Extract one visitor's resume for local gap analysis; no AI key or call."""
+    if not (file.filename or "").lower().endswith((".pdf", ".docx")):
+        raise HTTPException(400, "Upload a PDF or DOCX file.")
+    content = await file.read(5 * 1024 * 1024 + 1)
+    await file.close()
+    if not content or len(content) > 5 * 1024 * 1024:
+        raise HTTPException(413, "Upload a non-empty file smaller than 5 MB.")
+    if gate.locked():
+        raise HTTPException(429, "The server is busy. Please try again in a minute.")
+    async with gate:
+        try:
+            text = await parse_document(content, file.filename or "resume.pdf")
+        except Exception:
+            raise HTTPException(422, "Could not read this file. Use a text-based PDF or DOCX without a password.")
+        if len(text.strip()) < 80:
+            raise HTTPException(422, "Could not extract enough resume text. Scanned PDFs need OCR first.")
+        if len(text) > 30000:
+            raise HTTPException(413, "Your resume is too long. Please upload a shorter version.")
+        return {"source_markdown": text}
+
 @app.post("/api/tailor", response_model=Tailored)
 async def tailor(
     file: UploadFile = File(...),

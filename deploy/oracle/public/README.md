@@ -11,3 +11,7 @@ Tests cover anonymous routes, blocked shared-data routes, distinct request keys 
 ## Key setup and comparison report
 
 Both Groq and Gemini key-creation links are shown in the public form. Generated drafts include an AI edit summary and their actual extracted source for comparison. The browser computes before/after exact-match coverage over up to 40 selected JD terms, with matched, missing and newly introduced terms; it refreshes after manual edits and makes no extra AI calls. This heuristic does not estimate ATS pass probability, rankings or interview chances.
+
+## Prompt-only workflow
+
+/api/analyze accepts a resume and JD without an API key and extracts source text without any AI provider call. The browser finds exact-text keyword gaps and builds a downloadable/copyable prompt. The prompt requires the user to attach the original resume, asks the chosen AI to edit in place while preserving layout, and requests exact replacements when file editing is unavailable. Original DOCX is preferred; no formatting guarantee is made for external tools. The prompt also appears after in-site tailoring.
