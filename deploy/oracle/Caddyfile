@@ -1,18 +1,30 @@
 {$PUBLIC_HOST} {
-    basic_auth {
-        {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
-    }
     header {
         X-Content-Type-Options nosniff
-        Referrer-Policy same-origin
+        Referrer-Policy no-referrer
         -Server
     }
-    @home path /
-    handle @home {
-        root * /srv/rolemint
-        file_server
+    @public path /public /public/*
+    handle @public {
+        request_body {
+            max_size 6MB
+        }
+        uri strip_prefix /public
+        reverse_proxy public:8080 {
+            header_up -Authorization
+        }
     }
     handle {
-        reverse_proxy app:3000
+        basic_auth {
+            {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
+        }
+        @home path /
+        handle @home {
+            root * /srv/rolemint
+            file_server
+        }
+        handle {
+            reverse_proxy app:3000
+        }
     }
 }

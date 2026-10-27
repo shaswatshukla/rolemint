@@ -1,13 +1,14 @@
-// RoleMint's free public address. All app data remains on Oracle.
+// Public, stateless RoleMint. Private administration is never proxied.
 const ORIGIN = 'https://rolemint.137.23.55.229.sslip.io';
 export default {
   async fetch(request) {
     const incoming = new URL(request.url);
     const target = new URL(ORIGIN);
-    target.pathname = incoming.pathname;
+    target.pathname = "/public" + incoming.pathname;
     target.search = incoming.search;
     const headers = new Headers(request.headers);
     headers.delete('host');
+    headers.delete('authorization');
     headers.delete('x-forwarded-host');
     if (headers.get('origin') === incoming.origin) headers.set('origin', ORIGIN);
     headers.set('x-forwarded-proto', 'https');
@@ -26,7 +27,7 @@ export default {
       if (location) {
         const redirect = new URL(location, ORIGIN);
         if (redirect.origin === ORIGIN) {
-          response.headers.set('Location', incoming.origin + redirect.pathname + redirect.search + redirect.hash);
+          response.headers.set('Location', incoming.origin + (redirect.pathname.replace(/^\/public(?=\/|$)/, "") || "/") + redirect.search + redirect.hash);
         }
       }
       return response;

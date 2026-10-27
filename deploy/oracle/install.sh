@@ -13,7 +13,7 @@ if [[ ! "$PUBLIC_HOST" =~ ^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$ ]] || [[ "$P
 fi
 SOURCE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 DEPLOY_DIR=/opt/rolemint
-for required in compose.yaml Caddyfile web/index.html; do
+for required in compose.yaml Caddyfile web/index.html public/index.html public/public_app.py; do
   [[ -f "$SOURCE_DIR/$required" ]] || { echo "Missing $required" >&2; exit 1; }
 done
 
@@ -50,6 +50,9 @@ install -m 644 "$SOURCE_DIR/compose.yaml" "$DEPLOY_DIR/compose.yaml"
 install -m 644 "$SOURCE_DIR/Caddyfile" "$DEPLOY_DIR/Caddyfile"
 install -d -m 755 "$DEPLOY_DIR/web"
 install -m 644 "$SOURCE_DIR/web/index.html" "$DEPLOY_DIR/web/index.html"
+install -d -m 755 "$DEPLOY_DIR/public"
+install -m 644 "$SOURCE_DIR/public/index.html" "$DEPLOY_DIR/public/index.html"
+install -m 644 "$SOURCE_DIR/public/public_app.py" "$DEPLOY_DIR/public/public_app.py"
 
 if [[ ! -f "$DEPLOY_DIR/.env" ]]; then
   password="$(openssl rand -hex 24)"

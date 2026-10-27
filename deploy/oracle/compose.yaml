@@ -23,6 +23,41 @@ services:
       options:
         max-size: 10m
         max-file: "3"
+  public:
+    image: ghcr.io/srbhr/resume-matcher:1.4.0@sha256:ae84bc6f14fefb83d7ee1fcd0d527a5e09ae4ec5082f2d5f277647623c7f5d57
+    restart: unless-stopped
+    command: ["python", "-m", "uvicorn", "public_app:app", "--app-dir", "/public", "--host", "0.0.0.0", "--port", "8080", "--no-access-log", "--limit-concurrency", "8", "--timeout-keep-alive", "5"]
+    working_dir: /app/backend
+    environment:
+      PYTHONPATH: /app/backend
+      LLM_PROVIDER: agent
+      LOG_LEVEL: WARNING
+      MALLOC_ARENA_MAX: "2"
+    volumes:
+      - ./public:/public:ro
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+      - /app/backend/data:size=8m,mode=1777
+    expose:
+      - "8080"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 128
+    shm_size: 128mb
+    mem_limit: 600m
+    memswap_limit: 2g
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: "2"
   gateway:
     image: caddy:2
     restart: unless-stopped

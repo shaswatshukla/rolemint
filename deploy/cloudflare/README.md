@@ -1,5 +1,5 @@
 # RoleMint public address
 
-The Cloudflare Worker at https://rolemint.wluk.workers.dev proxies the existing HTTPS Oracle deployment. It forwards the visitor's existing Basic authentication; no password or API key is embedded in the Worker. Private responses are never cached.
+https://rolemint.wluk.workers.dev serves the anonymous, stateless public application on Oracle. Only /public-prefixed Oracle routes are proxied; private dashboard and shared configuration endpoints are not exposed through this address. Incoming Basic authorization is dropped. No shared AI key is stored. Each visitor supplies a key and explicitly agrees to send their resume and job description to their chosen provider. Responses are never cached.
 
-Cloudflare Builds uses this directory as the root, with `npx wrangler deploy`. The app, PDF renderer, database, and persistent volume remain on Oracle. No paid Workers plan is required for this small proxy within free plan limits.
+Cloudflare Builds uses /deploy/cloudflare as its root and npx wrangler deploy. The Oracle compose configuration runs the public API separately without mounting the private database.
