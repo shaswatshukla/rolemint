@@ -5,14 +5,19 @@ services:
     restart: unless-stopped
     environment:
       LLM_PROVIDER: agent
-      FRONTEND_BASE_URL: ${PUBLIC_URL:?Set PUBLIC_URL in .env}
+      # Internal rendering avoids the password-protected public gateway.
+      FRONTEND_BASE_URL: http://127.0.0.1:3000
       ALLOWED_HOSTS: ${PUBLIC_HOST:?Set PUBLIC_HOST in .env}
       LOG_LEVEL: INFO
+      NODE_OPTIONS: --max-old-space-size=256
+      MALLOC_ARENA_MAX: "2"
     volumes:
       - resume-data:/app/backend/data
     expose:
       - "3000"
     shm_size: 256mb
+    mem_limit: 700m
+    memswap_limit: 3g
     logging:
       driver: json-file
       options:

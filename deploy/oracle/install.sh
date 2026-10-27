@@ -17,6 +17,18 @@ for required in compose.yaml Caddyfile; do
   [[ -f "$SOURCE_DIR/$required" ]] || { echo "Missing $required" >&2; exit 1; }
 done
 
+# Small Always Free AMD instances need swap for Chromium and the Python API.
+memory_kb="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+if (( memory_kb < 2097152 )) && ! swapon --show=NAME --noheadings | grep -q .; then
+  if [[ ! -e /swapfile ]]; then
+    fallocate -l 4G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+  fi
+  swapon /swapfile
+  grep -q '^/swapfile ' /etc/fstab || printf '/swapfile none swap sw 0 0\n' >> /etc/fstab
+fi
+
 if ! command -v docker >/dev/null 2>&1; then
   . /etc/os-release
   case "$ID" in
